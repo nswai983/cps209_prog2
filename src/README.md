@@ -20,4 +20,4 @@ public class MyTest
 ```
 
 # Prog 2
-# Time: 5.5 hours
+# Time: 7 hours

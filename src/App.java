@@ -46,15 +46,21 @@ public class App {
         
         try {
             PNGFile p = PNGFile.load(filename);
-            ArrayList<PNGChunk> chunks = p.getChunks();
-            
-            System.out.println("Metadata in " + filename + ":");
-            for (PNGChunk chunk : chunks) {
-                if (chunk.getChunkType().equals("tEXt")) {
-                    System.out.println(chunk.getKeyword() + ":" + chunk.getText());
+
+            if (!p.getValidFile()) {
+                System.out.println(p.getName() + " does not contain PNG tags.");
+                System.exit(1);
+            }
+            else {
+                ArrayList<PNGChunk> chunks = p.getChunks();
+
+                System.out.println("Metadata in " + filename + ":");
+                for (PNGChunk chunk : chunks) {
+                    if (chunk.getChunkType().equals("tEXt")) {
+                        System.out.println(chunk.getKeyword() + ":" + chunk.getText());
+                    }
                 }
             }
-        
         } 
         catch (Exception e) {
             System.out.println(e);
