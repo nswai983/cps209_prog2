@@ -7,47 +7,59 @@
 import java.util.*;
 import java.io.*;
 
-public class PNG {
+public class PNGFile {
+    
+    private ArrayList<PNGChunk> chunks  = new ArrayList<PNGChunk>();
 
-    public static ArrayList<String> getMetadata(String filename) throws Exception {
+    public PNGFile() {
+        
+    }
 
-        ArrayList<String> metadata = new ArrayList<String>();
+    public static PNGFile load(String filename) throws IOException {
 
-        // implement static method
+        PNGFile png = new PNGFile();
+
         try (var br = new DataInputStream (new FileInputStream(filename))) {
+            
             byte[] tag = new byte[8];
-
             br.read(tag);
-
             String fileIdentifier = bytesToString(tag);
             if (!fileIdentifier.contains("PNG")) {
+                // this needs to be handled elsewhere
                 System.out.println(fileIdentifier);
                 System.out.println(filename + " does not contain PNG tags.");
                 System.exit(1);
             }
 
             // int length = br.readAllBytes().length - tag.length;
+            boolean cont = true;
             int chunkLength = getLength(br);
             String chunkType = "";
-            String chunkData;
-            String crc;
+            byte[] chunkData;
+            int crc;
+            
 
-            while (!chunkType.equals("IEND")) {
+            while (cont) {
                 chunkType = getChunkType(br);
-
-                chunkData = getChunkData(br, chunkType, chunkLength);
+                chunkData = getChunkData(br, chunkLength);
                 crc = getCRC(br);
-                // System.out.println(chunkType + "___" + chunkLength);
 
-                if (chunkType.equals("tEXt")) {
-                    metadata.add(chunkData);
+                // System.out.println(chunkLength + ":::" + chunkType);
+                // System.out.println(chunkData + ":::" + crc);
+                
+                png.addChunk( new PNGChunk(chunkLength, chunkType, chunkData, crc));
+
+                if (chunkType.equals("IEND")) {
+                    break;
+                }
+                else {
+                    chunkLength = getLength(br);
                 }
 
-                chunkLength = getLength(br);
             }
         }
 
-        return metadata;
+        return png;
     }
 
     // Converts an array of bytes to a String
@@ -70,51 +82,34 @@ public class PNG {
     private static String getChunkType(DataInputStream file) throws IOException {
         byte[] chunkType = new byte[4];
         file.read(chunkType);
-        return new String(bytesToString(chunkType));
+        return bytesToString(chunkType);
     }
 
     // Reads Type of chunk
-    private static String getChunkData(DataInputStream file, String chunkType, int length) throws IOException {
-        
-        String data = "";
-        int nullAt;
-        
-        if (!chunkType.equals("tEXt")) {
-            byte[] chunkData = new byte[length];
-            file.read(chunkData);
-            if (chunkData.length > 1000) {
-                return "Data too long";
-            } else {
-                return bytesToString(chunkData);
-            }
-        } else {
-            byte[] chunkData = new byte[length];
-
-            for (byte chunk : chunkData) {
-                chunk = file.readByte();
-                if (chunk == 0) {
-                    data += ": ";
-                }
-                else {
-                    data += (int) chunk;
-                }
-            }
-
+    private static byte[] getChunkData(DataInputStream file, int length) throws IOException { 
+        if (length == 0) {
+            return new byte[1];
+        }
+        else {
+            byte[] data = new byte[length];
+            file.read(data);
             return data;
         }
-        
-
 
     }
 
     // Reads Type of chunk
-    private static String getCRC(DataInputStream file) throws IOException {
+    private static int getCRC(DataInputStream file) throws IOException {
         byte[] chunkData = new byte[4];
         file.read(chunkData);
-        return bytesToString(chunkData);
+        return bytesToSize(chunkData);
     }
 
+    public void addChunk(PNGChunk chunk) {
+        chunks.add(chunk);
+    }
 
-
-    
+    public ArrayList<PNGChunk> getChunks() {
+        return chunks;
+    }
 }
