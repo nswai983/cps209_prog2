@@ -9,12 +9,14 @@ import java.io.*;
 
 public class PNG {
 
+    // Takes in a png file name and extracts metadata from chunks
+    // Returns an ArrayList of Strings containing the file's metadata
     public static ArrayList<String> getMetadata(String filename) throws Exception {
 
         ArrayList<String> metadata = new ArrayList<String>();
 
         // implement static method
-        try (var br = new DataInputStream (new FileInputStream(filename))) {
+        try (var br = new DataInputStream(new FileInputStream(filename))) {
             byte[] tag = new byte[8];
 
             br.read(tag);
@@ -51,34 +53,39 @@ public class PNG {
     }
 
     // Converts an array of bytes to a String
+    // Returns the String
     private static String bytesToString(byte[] data) {
         return new String(data);
     }
 
+    // Converts an array of bytes to a integer
+    // Returns the integer
     private static int bytesToSize(byte[] sizeBytes) {
         return java.nio.ByteBuffer.wrap(sizeBytes).getInt();
     }
 
     // Reads length of chunk
+    // Returns the length as an int
     private static int getLength(DataInputStream file) throws IOException {
         byte[] length = new byte[4];
         file.read(length);
         return bytesToSize(length);
     }
 
-    // Reads Type of chunk
+    // Reads type of chunk
+    // Returns type as a String
     private static String getChunkType(DataInputStream file) throws IOException {
         byte[] chunkType = new byte[4];
         file.read(chunkType);
         return new String(bytesToString(chunkType));
     }
 
-    // Reads Type of chunk
+    // Reads data of chunk
+    // Retuns data as a String
     private static String getChunkData(DataInputStream file, String chunkType, int length) throws IOException {
-        
+
         String data = "";
-        int nullAt;
-        
+
         if (!chunkType.equals("tEXt")) {
             byte[] chunkData = new byte[length];
             file.read(chunkData);
@@ -94,27 +101,22 @@ public class PNG {
                 chunk = file.readByte();
                 if (chunk == 0) {
                     data += ": ";
-                }
-                else {
+                } else {
                     data += (int) chunk;
                 }
             }
 
             return data;
         }
-        
-
 
     }
 
-    // Reads Type of chunk
+    // Reads crc of chunk
+    // Returns crc as a String
     private static String getCRC(DataInputStream file) throws IOException {
         byte[] chunkData = new byte[4];
         file.read(chunkData);
         return bytesToString(chunkData);
     }
 
-
-
-    
 }

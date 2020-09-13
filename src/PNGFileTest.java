@@ -10,9 +10,8 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.ArrayList;
 
-
 public class PNGFileTest {
-    
+
     @Test
     public void testPNGFile() throws IOException {
 
@@ -38,7 +37,7 @@ public class PNGFileTest {
                 if (chunk.getKeyword().equals("Signature")) {
                     assertEquals("3248a69c033c15e46356a9ecb996c652", chunk.getText().trim());
                 }
-                
+
                 if (chunk.getKeyword().equals("Delay")) {
                     assertEquals("100", chunk.getText().trim());
                 }

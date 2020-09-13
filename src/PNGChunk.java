@@ -15,6 +15,7 @@ public class PNGChunk {
     private byte[] chunkData;
     private int crc;
 
+    // public constructor for PNGChunk
     public PNGChunk(int chunkLength, String chunkType, byte[] chunkData, int crc) {
         this.chunkLength = chunkLength;
         this.chunkType = chunkType;
@@ -22,6 +23,9 @@ public class PNGChunk {
         this.crc = crc;
     }
 
+    // getters and setters
+
+    // extracts keyword from metadata
     public String getKeyword() {
 
         String keyword = "";
@@ -40,6 +44,7 @@ public class PNGChunk {
         return keyword;
     }
 
+    // extracts text from metadata
     public String getText() {
 
         String text = "";
@@ -63,6 +68,24 @@ public class PNGChunk {
         return text;
     }
 
+    public void setData(String key, String value) {
+        chunkLength = key.length() + value.length() + 1;
+        String data = key + " " + value;
+        byte[] newData = new byte[chunkLength];
+
+        for (int i = 0; i < chunkLength; i++) {
+            if (i == key.length()) {
+                newData[i] = (byte) 0;
+            } 
+            else {
+                newData[i] = (byte) data.charAt(i);
+            }
+            
+        }
+
+        chunkData = newData;
+    }
+
     public int getChunkLength() {
         return chunkLength;
     }
@@ -78,7 +101,7 @@ public class PNGChunk {
     public int getCRC() {
         return crc;
     }
-    
+
     public void setChunkLength(int length) {
         chunkLength = length;
     }
@@ -94,7 +117,5 @@ public class PNGChunk {
     public void setCRC(int length) {
         crc = length;
     }
-
-    
 
 }
